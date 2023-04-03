@@ -67,7 +67,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setUser(user);
         reservation.setSpot(minimumReservationSpot);
 
-        minimumReservationSpot.setOccupied(true);
+        minimumReservationSpot.setOccupied(Boolean.TRUE);
         minimumReservationSpot.getReservationList().add(reservation);
 
         parkingLotRepository3.save(parkingLot);
