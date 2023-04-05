@@ -43,19 +43,29 @@ public class ReservationServiceImpl implements ReservationService {
         Spot minimumReservationSpot = null;
         int minimumPrice = Integer.MAX_VALUE;
         for(Spot spot : spots){
-            int totalPrice = timeInHours * spot.getPricePerHour();
-            if(minimumPrice > totalPrice){
-                if(numberOfWheels == 2) {
-                    minimumReservationSpot = spot;
-                    minimumPrice = totalPrice;
+            //int totalPrice = timeInHours * spot.getPricePerHour();
+            if(spot.getOccupied().equals(false)){
+                if(spot.getSpotType().equals(SpotType.TWO_WHEELER)){
+                    if(numberOfWheels <= 2){
+                        if(minimumPrice > spot.getPricePerHour()){
+                            minimumPrice = spot.getPricePerHour();
+                            minimumReservationSpot = spot;
+                        }
+                    }
                 }
-                else if(numberOfWheels == 4 && spot.getSpotType() == SpotType.FOUR_WHEELER){
-                    minimumReservationSpot = spot;
-                    minimumPrice = totalPrice;
+                else if(spot.getSpotType().equals(SpotType.TWO_WHEELER)){
+                    if(numberOfWheels <= 4){
+                        if(minimumPrice > spot.getPricePerHour()){
+                            minimumPrice = spot.getPricePerHour();
+                            minimumReservationSpot = spot;
+                        }
+                    }
                 }
-                else if(numberOfWheels > 4 && spot.getSpotType() == SpotType.OTHERS){
-                    minimumReservationSpot = spot;
-                    minimumPrice = totalPrice;
+                else {
+                    if(minimumPrice > spot.getPricePerHour()){
+                        minimumPrice = spot.getPricePerHour();
+                        minimumReservationSpot = spot;
+                    }
                 }
             }
         }
@@ -63,14 +73,18 @@ public class ReservationServiceImpl implements ReservationService {
         if(minimumReservationSpot == null) throw new Exception("Cannot make reservation");
 
         Reservation reservation = new Reservation();
-        reservation.setNumberOfHours(numberOfWheels);
+        reservation.setNumberOfHours(timeInHours);
         reservation.setUser(user);
         reservation.setSpot(minimumReservationSpot);
+
+        user.getReservationList().add(reservation);
+        minimumReservationSpot.getReservationList().add(reservation);
 
         minimumReservationSpot.setOccupied(Boolean.TRUE);
         minimumReservationSpot.getReservationList().add(reservation);
 
-        parkingLotRepository3.save(parkingLot);
+       userRepository3.save(user);
+       spotRepository3.save(minimumReservationSpot);
 
         return reservation;
     }
